@@ -41,10 +41,43 @@ describe('LinkedList', function() {
         expect(members).to.be.eql(items);
     });
 
+    describe('LinkedList#push()', function() {
+
+        it('adds an item to the tail', function() {
+            var list = new LinkedList();
+            fillList(list);
+            var item = {number: 1};
+            list.push(item);
+            var members = getMembers(list);
+            expect(_.last(members)).to.be.equal(item);
+        });
+
+    });
+
+    describe('LinkedList#unshift()', function() {
+
+        it('adds an item to the head', function() {
+            var list = new LinkedList();
+            fillList(list);
+            var item = {number: 1};
+            list.unshift(item);
+            expect(getMembers(list)[0]).to.be.equal(item);
+        });
+
+        it('preserves integrity', function() {
+            var list = new LinkedList();
+            fillList(list);
+            var item = {number: 1};
+            list.unshift(item);
+            expect(getMembers(list)).to.have.length(items.length + 1);
+        });
+
+    });
+
     describe('LinkedList#remove()', function() {
 
         describe('removing a random item from the middle', function() {
-            var index = items.length / 4 + Math.random() * items.length / 2 | 0;
+            var index = randomIndex(items.length);
             shouldRemoveAt(index);
         });
 
@@ -73,6 +106,62 @@ describe('LinkedList', function() {
 
     });
 
+    describe('LinkedList#at()', function() {
+
+        it('finds an element by index', function() {
+            var list = new LinkedList();
+            fillList(list);
+            var index = randomIndex(items.length);
+            expect(list.at(index)).to.be.equal(items[index]);
+        });
+
+        it('throws an error if the index is > length', function() {
+            var list = new LinkedList();
+            fillList(list);
+            var index = items.length;
+            expect(function() {
+                list.at(index);
+            }).to.throw(RangeError);
+        });
+
+        it('throws an error if the index is negative', function() {
+            var list = new LinkedList();
+            fillList(list);
+            expect(function() {
+                list.at(-1);
+            }).to.throw(RangeError);
+        });
+
+        it('walks from the right if the index is above the middle', function() {
+            var list = new LinkedList();
+            fillList(list);
+            list.eachRight = function() {
+                throw 'i was called';
+            };
+            expect(function() {
+                list.at(items.length / 2 + 1);
+            }).to.throw('i was called');
+        });
+
+        it('succeeds if the index is above the middle', function() {
+            var list = new LinkedList();
+            fillList(list);
+            var index = items.length / 2 + 1;
+            expect(list.at(index)).to.be.equal(items[index]);
+        });
+
+        it('works ok if the list is empty', function() {
+            var list = new LinkedList();
+            expect(function() {
+                list.at(0);
+            }).to.throw(RangeError);
+            expect(function() {
+                list.at(-1);
+            }).to.throw(RangeError);
+        });
+
+    });
+
 });
 
 function spawnItems(count, factory) {
@@ -89,4 +178,8 @@ function getMembers(list) {
         members.push(member);
     });
     return members;
+}
+
+function randomIndex(length) {
+    return length / 4 + Math.random() * length / 2 | 0;
 }

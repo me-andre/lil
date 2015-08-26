@@ -37,7 +37,8 @@ new Benchmark.Suite()
 prepareList();
 prepareArray();
 
-new Benchmark.Suite().add('LinkedList#each()', function() {
+new Benchmark.Suite()
+    .add('LinkedList#each()', function() {
         var sum = 0;
         list.each(function(item) {
             sum += item.number;
@@ -48,6 +49,37 @@ new Benchmark.Suite().add('LinkedList#each()', function() {
         array.forEach(function(item) {
             sum += item.number;
         });
+    })
+    .on('cycle', function(event) {
+        console.log(String(event.target));
+    })
+    .on('error', function(event) {
+        console.log(event);
+    })
+    .on('complete', function() {
+        console.log('Fastest is ' + this.filter('fastest').pluck('name'));
+    })
+    .run();
+
+prepareList();
+prepareArray();
+
+global.randomIndex = function(length) {
+    return Math.random() * length | 0;
+};
+
+new Benchmark.Suite()
+    .add('LinkedList#at()', function() {
+        var sum = 0;
+        for (var i = 0; i < 100; i++) {
+            sum += list.at(randomIndex(list.length));
+        }
+    })
+    .add('Array#[]', function() {
+        var sum = 0;
+        for (var i = 0; i < 100; i++) {
+            sum += array[randomIndex(array.length)];
+        }
     })
     .on('cycle', function(event) {
         console.log(String(event.target));
@@ -91,8 +123,6 @@ new Benchmark.Suite()
     })
     .run();
 
-
-
 function spawnItems(count, factory) {
     var items = [];
     for (var i = 0; i < count; i++) {
@@ -119,7 +149,7 @@ function prepareList() {
 }
 
 function prepareArray() {
-    global.array = new Array();
+    global.array = [];
     fillList(global.array);
     global.removeArray = [];
     var size = items.length;
