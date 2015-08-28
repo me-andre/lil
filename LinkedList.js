@@ -1,5 +1,4 @@
 var Iteration = require('./Iteration');
-var AtIterator = require('./AtIterator');
 
 module.exports = LinkedList;
 
@@ -56,8 +55,9 @@ LinkedList.prototype.remove = function(item) {
 LinkedList.prototype.each = function(iterator, context) {
     var iteration = new Iteration();
     var item = this.first;
+    var index = 0;
     while (item && !iteration.broken) {
-        iterator.call(context, item.value, iteration);
+        iterator.call(context, item.value, index++, iteration);
         item = item.next;
     }
     return iteration.result;
@@ -66,20 +66,15 @@ LinkedList.prototype.each = function(iterator, context) {
 LinkedList.prototype.eachRight = function(iterator, context) {
     var iteration = new Iteration();
     var item = this.last;
+    var index = this.length - 1;
     while (item && !iteration.broken) {
-        iterator.call(context, item.value, iteration);
+        iterator.call(context, item.value, index--, iteration);
         item = item.prev;
     }
     return iteration.result;
 };
 
-LinkedList.prototype.at = function(index) {
-    if (index < 0 || index > this.length - 1) {
-        throw new RangeError('index out of bounds');
-    }
-    var iterator = new AtIterator(this, index);
-    return iterator.direction === 1 ? this.each(iterator) : this.eachRight(iterator);
-};
+LinkedList.prototype.at = require('./methods/at');
 
 function LinkedListItem(value) {
     this.prev = this.next = null;
