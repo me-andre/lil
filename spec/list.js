@@ -52,6 +52,14 @@ describe('LinkedList', function() {
             expect(_.last(members)).to.be.equal(item);
         });
 
+        it('keeps the .length up-to-date', function() {
+            var list = new LinkedList();
+            fillList(list);
+            var item = {number: 1};
+            list.push(item);
+            expect(list).to.have.length(items.length + 1);
+        });
+
     });
 
     describe('LinkedList#unshift()', function() {
@@ -70,6 +78,14 @@ describe('LinkedList', function() {
             var item = {number: 1};
             list.unshift(item);
             expect(getMembers(list)).to.have.length(items.length + 1);
+        });
+
+        it('keeps the .length up-to-date', function() {
+            var list = new LinkedList();
+            fillList(list);
+            var item = {number: 1};
+            list.unshift(item);
+            expect(list).to.have.length(items.length + 1);
         });
 
     });
@@ -101,6 +117,10 @@ describe('LinkedList', function() {
 
             it('removes the given item', function() {
                 expect(_.difference(items, members)).to.be.eql([links[index].value]);
+            });
+
+            it('keeps the .length up-to-date', function() {
+                expect(list).to.have.length(items.length - 1);
             });
         }
 

@@ -16,12 +16,15 @@ var items = spawnItems(100000, function(i) {
     };
 });
 
+global.list = new LinkedList();
+global.array = [];
+
 new Benchmark.Suite()
     .add('LinkedList#push()', function() {
-        fillList(new LinkedList());
+        fillList(list);
     })
     .add('Array#push()', function() {
-        fillList(new Array());
+        fillList(array);
     })
     .on('cycle', function(event) {
         console.log(String(event.target));
@@ -34,8 +37,11 @@ new Benchmark.Suite()
     })
     .run();
 
-prepareList();
-prepareArray();
+list = new LinkedList();
+array = [];
+
+fillList(list);
+fillList(array);
 
 new Benchmark.Suite()
     .add('LinkedList#each()', function() {
@@ -61,12 +67,15 @@ new Benchmark.Suite()
     })
     .run();
 
-prepareList();
-prepareArray();
-
 global.randomIndex = function(length) {
     return Math.random() * length | 0;
 };
+
+list = new LinkedList();
+array = [];
+
+fillList(list);
+fillList(array);
 
 new Benchmark.Suite()
     .add('LinkedList#at()', function() {
@@ -92,25 +101,25 @@ new Benchmark.Suite()
     })
     .run();
 
-global.removeCount = items.length / 2;
+var removeCount = items.length / 2;
 
-prepareList();
-prepareArray();
+prepareListRemove();
+prepareArrayRemove();
 
 new Benchmark.Suite()
     .add('LinkedList#remove()', function() {
-        for (var i = 0; i < global.removeList.length; i++) {
-            global.list.remove(global.removeList[i]);
+        for (var i = 0; i < global.itemsToRemoveFromList.length; i++) {
+            global.list.remove(global.itemsToRemoveFromList[i]);
         }
     }, {
-        onCycle: prepareList
+        onCycle: prepareListRemove
     })
     .add('Array#splice()', function() {
-        for (var i = 0; i < global.removeArray.length; i++) {
-            array.splice(global.removeArray[i], 1);
+        for (var i = 0; i < global.itemsToRemoveFromArray.length; i++) {
+            array.splice(global.itemsToRemoveFromArray[i], 1);
         }
     }, {
-        onCycle: prepareArray
+        onCycle: prepareArrayRemove
     })
     .on('cycle', function(event) {
         console.log(String(event.target));
@@ -137,24 +146,26 @@ function fillList(list) {
     });
 }
 
-function prepareList() {
-    global.list = new LinkedList();
-    var links = fillList(global.list);
-    global.removeList = [];
-    var size = items.length;
-    for (var i = 0; i < global.removeCount; i++) {
-        var index = Math.random() * size-- | 0;
-        global.removeList.push(links[index]);
-    }
+function prepareListRemove() {
+    list = new LinkedList();
+    var links = fillList(list);
+    global.itemsToRemoveFromList = pickItemsToRemove(list.length, removeCount);
+    itemsToRemoveFromList = itemsToRemoveFromList.map(function(index) {
+        return links[index];
+    });
 }
 
-function prepareArray() {
-    global.array = [];
-    fillList(global.array);
-    global.removeArray = [];
-    var size = items.length;
-    for (var i = 0; i < global.removeCount; i++) {
-        var index = Math.random() * size-- | 0;
-        global.removeArray.push(index);
+function prepareArrayRemove() {
+    array = [];
+    fillList(array);
+    global.itemsToRemoveFromArray = pickItemsToRemove(array.length, removeCount);
+}
+
+function pickItemsToRemove(length, removeCount) {
+    var itemIndexes = [];
+    for (var i = 0; i < removeCount; i++) {
+        var index = Math.random() * length-- | 0;
+        itemIndexes.push(index);
     }
+    return itemIndexes;
 }

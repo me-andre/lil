@@ -65,10 +65,10 @@ function fillList(list) {
 function prepareList() {
     global.list = new LinkedList();
     var links = fillList(global.list);
-    global.removeList = [];
+    global.itemsToRemoveFromList = [];
     var size = items.length;
     for (var i = 0; i < global.removeCount; i++) {
         var index = Math.random() * size-- | 0;
-        global.removeList.push(links[index]);
+        global.itemsToRemoveFromList.push(links[index]);
     }
 }
